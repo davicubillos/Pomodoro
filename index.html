@@ -105,7 +105,7 @@
             margin-top: 5px;
         }
 
-        /* Selector de Visualización (Ver reloj vs animación) */
+        /* Selector de Visualización */
         .view-selector {
             display: flex;
             justify-content: center;
@@ -215,9 +215,9 @@
         .btn-work:hover { background-color: #ff8585; }
         .btn-break:hover { background-color: #72e2db; }
 
-        /* === ANIMACIÓN DE ESTUDIO (Libro Pulsante) === */
+        /* === ANIMACIÓN DE ESTUDIO === */
         #study-animation {
-            display: none; /* Oculto por defecto */
+            display: none; 
             width: 120px;
             height: 120px;
             transition: opacity 0.3s, transform 0.3s;
@@ -241,8 +241,6 @@
         }
 
         /* === ESTADOS DE VISUALIZACIÓN === */
-        
-        /* Cuando la animación está activa */
         body.show-anim-mode #timer {
             opacity: 0;
             transform: scale(0.8);
@@ -256,7 +254,7 @@
             transform: scale(1);
         }
 
-        /* === MODO ZEN (OCULTAR SELECTIVAMENTE) === */
+        /* === MODO ZEN === */
         body.zen-mode .hide-in-zen {
             opacity: 0;
             pointer-events: none;
@@ -359,8 +357,8 @@
             </div>
             
             <div class="controls hide-in-zen">
-                <button class="btn-work" onclick="startTimer()">Iniciar Enfoque</button>
-                <button class="btn-break" onclick="setBreak()">Iniciar Descanso</button>
+                <button class="btn-work" onclick="forceStartWork()">Iniciar Enfoque</button>
+                <button class="btn-break" onclick="forceStartBreak()">Iniciar Descanso</button>
             </div>
         </div>
 
@@ -369,8 +367,8 @@
     <script>
         let timeLeft;
         let timerId = null;
-        let isWorkMode = true; // Define si estamos en estudio o descanso
-        let preferAnimation = false; // Guardar preferencia del usuario
+        let isWorkMode = true; 
+        let preferAnimation = false; 
 
         const timerDisplay = document.getElementById('timer');
         const modeDisplay = document.getElementById('mode');
@@ -378,15 +376,12 @@
         const breakInput = document.getElementById('break-input');
         const viewToggle = document.getElementById('view-toggle');
 
-        // Cambiar preferencia de visualización
         function toggleViewPreference() {
             preferAnimation = viewToggle.checked;
             updateVisualizationState();
         }
 
-        // Controla si se ve el reloj o el libro basándose en el modo y la preferencia
         function updateVisualizationState() {
-            // Solo mostramos animación si la preferencia está activa Y estamos en Modo Estudio
             if (preferAnimation && isWorkMode && timerId !== null) {
                 document.body.classList.add('show-anim-mode');
             } else {
@@ -394,29 +389,25 @@
             }
         }
 
-        // Función para aplicar recomendaciones de la tabla
         function setPresets(workMin, breakMin) {
-            if (timerId !== null) return; // No cambiar si está corriendo
+            if (timerId !== null) return; 
             
             workInput.value = workMin;
             breakInput.value = breakMin;
-            setWork(); // Resetear a modo estudio con los nuevos tiempos
+            setWork(); 
             
-            // Feedback visual rápido
             document.body.style.backgroundColor = '#2a2a40';
             setTimeout(() => document.body.style.backgroundColor = 'var(--bg-color)', 150);
         }
 
-        // Inicializar el tiempo basado en el modo actual
         function initTime() {
             if (timerId === null) {
                 timeLeft = parseInt(isWorkMode ? workInput.value : breakInput.value) * 60;
-                if (isNaN(timeLeft)) timeLeft = 25 * 60; // Safeguard
+                if (isNaN(timeLeft)) timeLeft = 25 * 60; 
                 updateDisplay();
             }
         }
 
-        // Detectar cambios manuales en los inputs
         workInput.addEventListener('change', () => { if(isWorkMode) initTime(); });
         breakInput.addEventListener('change', () => { if(!isWorkMode) initTime(); });
 
@@ -427,13 +418,10 @@
         }
 
         function startTimer() {
-            if (timerId !== null) return; // Ya está corriendo
+            if (timerId !== null) return; 
             
-            if (isWorkMode) {
-                document.body.classList.add('zen-mode');
-            }
-            
-            updateVisualizationState(); // Decidir si mostrar reloj o libro
+            // AHORA el Modo Zen se activa sin importar si es estudio o descanso
+            document.body.classList.add('zen-mode');
 
             timerId = setInterval(() => {
                 timeLeft--;
@@ -443,29 +431,38 @@
                     clearInterval(timerId);
                     timerId = null;
                     document.body.classList.remove('zen-mode');
-                    document.body.classList.remove('show-anim-mode'); // Asegurar que el reloj vuelva
+                    document.body.classList.remove('show-anim-mode'); 
                     
                     if (isWorkMode) {
-                        alert('¡Jornada de enfoque completada! Disfruta tu descanso.');
                         setBreak();
-                        // Autostart descanso si quieres, pero es mejor que el usuario confirme
+                        startTimer(); 
                     } else {
-                        alert('¡Descanso terminado! Volvamos al estudio.');
                         setWork();
                     }
                 }
             }, 1000);
+
+            updateVisualizationState(); 
+        }
+
+        // NUEVAS FUNCIONES PARA LOS BOTONES
+        function forceStartWork() {
+            setWork();
+            startTimer();
+        }
+
+        function forceStartBreak() {
+            setBreak();
+            startTimer();
         }
 
         function togglePause() {
             if (timerId !== null) {
-                // Pausar
                 clearInterval(timerId);
                 timerId = null;
                 document.body.classList.remove('zen-mode');
-                updateVisualizationState(); // Volver al reloj al pausar
+                updateVisualizationState(); 
             } else if (document.body.classList.contains('zen-mode')) {
-                 // Estaba en zen pero pausado (caso raro), salir del zen
                  document.body.classList.remove('zen-mode');
             }
         }
@@ -476,10 +473,9 @@
             isWorkMode = true;
             timeLeft = parseInt(workInput.value) * 60;
             
-            // Actualizar UI
             modeDisplay.textContent = 'Modo Enfoque';
             modeDisplay.style.color = 'var(--accent-work)';
-            document.documentElement.style.setProperty('--accent-work', '#ff6b6b'); // Reset color por si acaso
+            document.documentElement.style.setProperty('--accent-work', '#ff6b6b'); 
             
             document.body.classList.remove('zen-mode');
             updateVisualizationState(); 
@@ -492,19 +488,15 @@
             isWorkMode = false;
             timeLeft = parseInt(breakInput.value) * 60;
             
-            // Actualizar UI para descanso
             modeDisplay.textContent = 'Modo Descanso';
             modeDisplay.style.color = 'var(--accent-break)';
             
             document.body.classList.remove('zen-mode');
-            
-            // OBLIGATORIO: Volver al modo reloj para el descanso
             document.body.classList.remove('show-anim-mode'); 
             
             updateDisplay();
         }
 
-        // Arranque inicial
         initTime();
     </script>
 </body>
