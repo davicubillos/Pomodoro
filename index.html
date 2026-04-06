@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro Focus</title>
+    <title>Pomodoro Focus Studio</title>
     <style>
         :root {
-            --bg-color: #1e1e2f;
-            --panel-bg: #2a2a40;
+            --bg-color: #1a1a2e;
+            --panel-bg: #24243e;
             --text-main: #ffffff;
             --text-muted: #a0a0b5;
             --accent-work: #ff6b6b;
             --accent-break: #4ecdc4;
             --accent-long: #ffe66d;
+            --ui-border: #3f3f5a;
         }
 
         body {
@@ -25,7 +26,8 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            transition: background-color 0.3s;
+            transition: background-color 0.4s;
+            overflow-x: hidden;
         }
 
         #ui-wrapper {
@@ -34,14 +36,15 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            transition: opacity 0.4s, transform 0.4s;
         }
 
         .panel {
             background-color: var(--panel-bg);
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            transition: all 0.4s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            transition: background-color 0.4s, box-shadow 0.4s;
         }
 
         /* Tabla de recomendaciones interactiva */
@@ -54,7 +57,7 @@
         th, td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #3f3f5a;
+            border-bottom: 1px solid var(--ui-border);
         }
         th {
             color: var(--accent-break);
@@ -65,29 +68,35 @@
             transition: background-color 0.2s, transform 0.1s;
         }
         .clickable-row:hover {
-            background-color: #32324d;
+            background-color: rgba(255,255,255,0.05);
         }
         .clickable-row:active {
             transform: scale(0.98);
         }
 
-        /* Configuración */
+        /* Configuración Avanzada */
+        .config-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
         .config-row {
             display: flex;
             justify-content: center;
             gap: 20px;
-            margin-bottom: 20px;
-            transition: opacity 0.4s;
+            flex-wrap: wrap;
         }
+        
         .input-group {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
         input[type="number"] {
-            background-color: #1e1e2f;
+            background-color: rgba(0,0,0,0.2);
             color: white;
-            border: 1px solid #3f3f5a;
+            border: 1px solid var(--ui-border);
             padding: 8px;
             border-radius: 5px;
             width: 70px;
@@ -95,6 +104,44 @@
             font-size: 16px;
             margin-top: 5px;
         }
+
+        /* Selector de Visualización (Ver reloj vs animación) */
+        .view-selector {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--accent-work); }
+        input:checked + .slider:before { transform: translateX(26px); }
 
         /* Controles y Temporizador */
         .timer-section {
@@ -106,7 +153,12 @@
             cursor: pointer;
             padding: 20px;
             border-radius: 20px;
-            transition: all 0.4s;
+            transition: all 0.4s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
         }
 
         #timer {
@@ -115,6 +167,7 @@
             font-variant-numeric: tabular-nums;
             margin: 0;
             line-height: 1;
+            transition: opacity 0.3s, transform 0.3s;
         }
 
         .mode-label {
@@ -123,44 +176,87 @@
             text-transform: uppercase;
             letter-spacing: 3px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            transition: color 0.4s;
         }
 
         #zen-hint {
             font-size: 14px;
             color: var(--text-muted);
-            margin-top: 15px;
+            margin-top: 20px;
             opacity: 0;
             transition: opacity 0.3s;
             position: absolute;
             width: 100%;
+            bottom: 20px;
             left: 0;
             pointer-events: none;
         }
 
         .controls {
-            margin-top: 20px;
+            margin-top: 25px;
             transition: opacity 0.4s;
         }
 
         button {
-            background-color: var(--accent-break);
-            color: #1a1a2e;
             border: none;
-            padding: 12px 25px;
+            padding: 12px 28px;
             font-size: 16px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
             margin: 5px;
-            transition: transform 0.1s, opacity 0.2s;
+            transition: transform 0.1s, opacity 0.2s, background-color 0.3s;
         }
-        button:active { transform: scale(0.95); }
-        button.btn-primary { background-color: var(--accent-work); color: white; }
+        button:active { transform: scale(0.96); }
+        
+        .btn-work { background-color: var(--accent-work); color: white; }
+        .btn-break { background-color: var(--accent-break); color: #1a1a2e; }
+        .btn-work:hover { background-color: #ff8585; }
+        .btn-break:hover { background-color: #72e2db; }
+
+        /* === ANIMACIÓN DE ESTUDIO (Libro Pulsante) === */
+        #study-animation {
+            display: none; /* Oculto por defecto */
+            width: 120px;
+            height: 120px;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .book-page {
+            fill: none;
+            stroke: var(--accent-work);
+            stroke-width: 2;
+            stroke-linecap: round;
+            opacity: 0.7;
+        }
+
+        @keyframes pagePulse {
+            0%, 100% { opacity: 0.4; transform: scaleY(1); }
+            50% { opacity: 1; transform: scaleY(1.05); transform-origin: center; }
+        }
+
+        .book-page.pulsing {
+            animation: pagePulse 2s infinite ease-in-out;
+        }
+
+        /* === ESTADOS DE VISUALIZACIÓN === */
+        
+        /* Cuando la animación está activa */
+        body.show-anim-mode #timer {
+            opacity: 0;
+            transform: scale(0.8);
+            position: absolute;
+            pointer-events: none;
+        }
+        
+        body.show-anim-mode #study-animation {
+            display: block;
+            opacity: 1;
+            transform: scale(1);
+        }
 
         /* === MODO ZEN (OCULTAR SELECTIVAMENTE) === */
-        
-        /* Oculta la tabla, las configuraciones y los botones */
         body.zen-mode .hide-in-zen {
             opacity: 0;
             pointer-events: none;
@@ -168,19 +264,16 @@
             transform: scale(0.95);
         }
 
-        /* Quita el fondo de la caja del temporizador */
         body.zen-mode .timer-section {
             background-color: transparent;
             box-shadow: none;
         }
 
-        /* Agranda el temporizador */
         body.zen-mode #timer-display-container {
-            transform: scale(1.5);
-            margin-top: 10vh; /* Lo centra un poco más en la pantalla */
+            transform: scale(1.4);
+            margin-top: 5vh;
         }
 
-        /* Muestra la pista de cómo salir */
         body.zen-mode #zen-hint {
             opacity: 1;
         }
@@ -192,34 +285,34 @@
     <div id="ui-wrapper">
         
         <div class="panel hide-in-zen">
-            <h2 style="margin-top:0; color: var(--text-muted); font-size: 18px;">Guía de Jornadas (Haz clic para configurar)</h2>
+            <h2 style="margin-top:0; color: var(--text-muted); font-size: 18px; text-align: center;">Guía de Jornadas Inteligentes</h2>
             <table>
                 <thead>
                     <tr>
                         <th>Tipo de Jornada</th>
                         <th>Estudio</th>
                         <th>Descanso</th>
-                        <th>Ideal para...</th>
+                        <th>Enfoque sugerido</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr class="clickable-row" onclick="setPresets(25, 5)">
-                        <td style="color: var(--accent-work);">Corta (Pomodoro)</td>
+                        <td style="color: var(--accent-work); font-weight:bold;">Corta (Clásica)</td>
                         <td>25 min</td>
                         <td>5 min</td>
-                        <td>Tareas mecánicas, repasar conceptos teóricos, organizar apuntes.</td>
+                        <td>Repasos rápidos, organización, tareas mecánicas.</td>
                     </tr>
                     <tr class="clickable-row" onclick="setPresets(50, 10)">
-                        <td style="color: var(--accent-break);">Media</td>
+                        <td style="color: var(--accent-break); font-weight:bold;">Media (Equilibrada)</td>
                         <td>50 min</td>
                         <td>10 min</td>
-                        <td>Resolución de problemas estructurados y ejercicios prácticos.</td>
+                        <td>Resolución de guías, lectura técnica, ejercicios prácticos.</td>
                     </tr>
                     <tr class="clickable-row" onclick="setPresets(90, 20)">
-                        <td style="color: var(--accent-long);">Larga (Deep Work)</td>
+                        <td style="color: var(--accent-long); font-weight:bold;">Larga (Deep Work)</td>
                         <td>90 min</td>
                         <td>20 min</td>
-                        <td>Máxima concentración: programar, diseñar en CAD o resolver exámenes.</td>
+                        <td>Programación, diseño CAD, resolver problemas complejos, estudio intenso.</td>
                     </tr>
                 </tbody>
             </table>
@@ -227,26 +320,47 @@
 
         <div class="panel timer-section">
             
-            <div class="config-row hide-in-zen">
-                <div class="input-group">
-                    <label style="color: var(--text-muted); font-size: 12px;">MINUTOS ESTUDIO</label>
-                    <input type="number" id="work-input" value="25" min="1" max="180">
+            <div class="config-panel hide-in-zen">
+                <div class="config-row">
+                    <div class="input-group">
+                        <label style="color: var(--text-muted); font-size: 12px;">MINUTOS ESTUDIO</label>
+                        <input type="number" id="work-input" value="25" min="1" max="180">
+                    </div>
+                    <div class="input-group">
+                        <label style="color: var(--text-muted); font-size: 12px;">MINUTOS DESCANSO</label>
+                        <input type="number" id="break-input" value="5" min="1" max="60">
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label style="color: var(--text-muted); font-size: 12px;">MINUTOS DESCANSO</label>
-                    <input type="number" id="break-input" value="5" min="1" max="60">
+                
+                <div class="view-selector">
+                    <span>Ver Reloj</span>
+                    <label class="switch">
+                        <input type="checkbox" id="view-toggle" onchange="toggleViewPreference()">
+                        <span class="slider"></span>
+                    </label>
+                    <span>Ver Animación</span>
                 </div>
             </div>
 
             <div id="timer-display-container" onclick="togglePause()">
                 <div class="mode-label" id="mode">Modo Enfoque</div>
+                
                 <div id="timer">25:00</div>
-                <div id="zen-hint">Haz clic en el reloj para pausar y salir</div>
+                
+                <svg id="study-animation" viewBox="0 0 100 100">
+                    <path d="M50,20 L80,25 L80,85 L50,80 Z" fill="none" stroke="#ff6b6b" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M50,20 L20,25 L20,85 L50,80 Z" fill="none" stroke="#ff6b6b" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M50,20 L50,80" fill="none" stroke="#ff6b6b" stroke-width="4" stroke-linecap="round"/>
+                    <path class="book-page pulsing" d="M55,30 L75,33 M55,40 L75,43 M55,50 L75,53 M55,60 L75,63 M55,70 L75,73" style="animation-delay: 0s;"/>
+                    <path class="book-page pulsing" d="M45,30 L25,33 M45,40 L25,43 M45,50 L25,53 M45,60 L25,63 M45,70 L25,73" style="animation-delay: 0.5s;"/>
+                </svg>
+
+                <div id="zen-hint">Haz clic en el centro para pausar y salir</div>
             </div>
             
             <div class="controls hide-in-zen">
-                <button class="btn-primary" onclick="startTimer()">Iniciar Enfoque</button>
-                <button onclick="setBreak()">Iniciar Descanso</button>
+                <button class="btn-work" onclick="startTimer()">Iniciar Enfoque</button>
+                <button class="btn-break" onclick="setBreak()">Iniciar Descanso</button>
             </div>
         </div>
 
@@ -255,44 +369,56 @@
     <script>
         let timeLeft;
         let timerId = null;
-        let isWorkMode = true;
+        let isWorkMode = true; // Define si estamos en estudio o descanso
+        let preferAnimation = false; // Guardar preferencia del usuario
 
         const timerDisplay = document.getElementById('timer');
         const modeDisplay = document.getElementById('mode');
         const workInput = document.getElementById('work-input');
         const breakInput = document.getElementById('break-input');
+        const viewToggle = document.getElementById('view-toggle');
 
-        // Función para aplicar recomendaciones al hacer clic en la tabla
-        function setPresets(workMin, breakMin) {
-            workInput.value = workMin;
-            breakInput.value = breakMin;
-            
-            // Si el temporizador no está corriendo, actualizar el reloj de inmediato
-            if (timerId === null) {
-                isWorkMode = true;
-                initTime();
-                modeDisplay.textContent = 'Modo Enfoque';
-                modeDisplay.style.color = 'var(--accent-work)';
-            }
-            
-            // Pequeño feedback visual de que se aplicó el cambio
-            document.body.style.backgroundColor = '#2a2a40';
-            setTimeout(() => {
-                document.body.style.backgroundColor = 'var(--bg-color)';
-            }, 150);
+        // Cambiar preferencia de visualización
+        function toggleViewPreference() {
+            preferAnimation = viewToggle.checked;
+            updateVisualizationState();
         }
 
+        // Controla si se ve el reloj o el libro basándose en el modo y la preferencia
+        function updateVisualizationState() {
+            // Solo mostramos animación si la preferencia está activa Y estamos en Modo Estudio
+            if (preferAnimation && isWorkMode && timerId !== null) {
+                document.body.classList.add('show-anim-mode');
+            } else {
+                document.body.classList.remove('show-anim-mode');
+            }
+        }
+
+        // Función para aplicar recomendaciones de la tabla
+        function setPresets(workMin, breakMin) {
+            if (timerId !== null) return; // No cambiar si está corriendo
+            
+            workInput.value = workMin;
+            breakInput.value = breakMin;
+            setWork(); // Resetear a modo estudio con los nuevos tiempos
+            
+            // Feedback visual rápido
+            document.body.style.backgroundColor = '#2a2a40';
+            setTimeout(() => document.body.style.backgroundColor = 'var(--bg-color)', 150);
+        }
+
+        // Inicializar el tiempo basado en el modo actual
         function initTime() {
             if (timerId === null) {
                 timeLeft = parseInt(isWorkMode ? workInput.value : breakInput.value) * 60;
+                if (isNaN(timeLeft)) timeLeft = 25 * 60; // Safeguard
                 updateDisplay();
             }
         }
 
-        workInput.addEventListener('change', initTime);
-        breakInput.addEventListener('change', () => {
-            if (!isWorkMode) initTime();
-        });
+        // Detectar cambios manuales en los inputs
+        workInput.addEventListener('change', () => { if(isWorkMode) initTime(); });
+        breakInput.addEventListener('change', () => { if(!isWorkMode) initTime(); });
 
         function updateDisplay() {
             const minutes = Math.floor(timeLeft / 60);
@@ -301,9 +427,13 @@
         }
 
         function startTimer() {
-            if (timerId !== null) return; 
+            if (timerId !== null) return; // Ya está corriendo
             
-            document.body.classList.add('zen-mode');
+            if (isWorkMode) {
+                document.body.classList.add('zen-mode');
+            }
+            
+            updateVisualizationState(); // Decidir si mostrar reloj o libro
 
             timerId = setInterval(() => {
                 timeLeft--;
@@ -313,12 +443,14 @@
                     clearInterval(timerId);
                     timerId = null;
                     document.body.classList.remove('zen-mode');
+                    document.body.classList.remove('show-anim-mode'); // Asegurar que el reloj vuelva
                     
                     if (isWorkMode) {
-                        alert('¡Jornada completada! Es hora de descansar.');
+                        alert('¡Jornada de enfoque completada! Disfruta tu descanso.');
                         setBreak();
+                        // Autostart descanso si quieres, pero es mejor que el usuario confirme
                     } else {
-                        alert('¡Descanso terminado! Volvamos al enfoque.');
+                        alert('¡Descanso terminado! Volvamos al estudio.');
                         setWork();
                     }
                 }
@@ -327,10 +459,13 @@
 
         function togglePause() {
             if (timerId !== null) {
+                // Pausar
                 clearInterval(timerId);
                 timerId = null;
                 document.body.classList.remove('zen-mode');
+                updateVisualizationState(); // Volver al reloj al pausar
             } else if (document.body.classList.contains('zen-mode')) {
+                 // Estaba en zen pero pausado (caso raro), salir del zen
                  document.body.classList.remove('zen-mode');
             }
         }
@@ -340,9 +475,14 @@
             timerId = null;
             isWorkMode = true;
             timeLeft = parseInt(workInput.value) * 60;
+            
+            // Actualizar UI
             modeDisplay.textContent = 'Modo Enfoque';
             modeDisplay.style.color = 'var(--accent-work)';
+            document.documentElement.style.setProperty('--accent-work', '#ff6b6b'); // Reset color por si acaso
+            
             document.body.classList.remove('zen-mode');
+            updateVisualizationState(); 
             updateDisplay();
         }
 
@@ -351,12 +491,20 @@
             timerId = null;
             isWorkMode = false;
             timeLeft = parseInt(breakInput.value) * 60;
+            
+            // Actualizar UI para descanso
             modeDisplay.textContent = 'Modo Descanso';
             modeDisplay.style.color = 'var(--accent-break)';
+            
             document.body.classList.remove('zen-mode');
+            
+            // OBLIGATORIO: Volver al modo reloj para el descanso
+            document.body.classList.remove('show-anim-mode'); 
+            
             updateDisplay();
         }
 
+        // Arranque inicial
         initTime();
     </script>
 </body>
