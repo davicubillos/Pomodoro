@@ -180,18 +180,7 @@
             transition: color 0.4s;
         }
 
-        #zen-hint {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-top: 20px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            position: absolute;
-            width: 100%;
-            bottom: 20px;
-            left: 0;
-            pointer-events: none;
-        }
+        /* EL TEXTO DE AYUDA HA SIDO ELIMINADO COMPLETAMENTE */
 
         .controls {
             margin-top: 25px;
@@ -215,29 +204,15 @@
         .btn-work:hover { background-color: #ff8585; }
         .btn-break:hover { background-color: #72e2db; }
 
-        /* === ANIMACIÓN DE ESTUDIO === */
+        /* === NUEVA ANIMACIÓN DE ESTUDIO (GIF LOFI) === */
         #study-animation {
-            display: none; 
-            width: 120px;
-            height: 120px;
+            display: none; /* Oculto por defecto */
+            /* Agrandar la visualización del GIF */
+            max-width: 100%; 
+            max-height: 350px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
             transition: opacity 0.3s, transform 0.3s;
-        }
-
-        .book-page {
-            fill: none;
-            stroke: var(--accent-work);
-            stroke-width: 2;
-            stroke-linecap: round;
-            opacity: 0.7;
-        }
-
-        @keyframes pagePulse {
-            0%, 100% { opacity: 0.4; transform: scaleY(1); }
-            50% { opacity: 1; transform: scaleY(1.05); transform-origin: center; }
-        }
-
-        .book-page.pulsing {
-            animation: pagePulse 2s infinite ease-in-out;
         }
 
         /* === ESTADOS DE VISUALIZACIÓN === */
@@ -268,12 +243,8 @@
         }
 
         body.zen-mode #timer-display-container {
-            transform: scale(1.4);
+            transform: scale(1.3); /* Un poco más sutil para que el GIF quepa bien */
             margin-top: 5vh;
-        }
-
-        body.zen-mode #zen-hint {
-            opacity: 1;
         }
 
     </style>
@@ -345,16 +316,9 @@
                 
                 <div id="timer">25:00</div>
                 
-                <svg id="study-animation" viewBox="0 0 100 100">
-                    <path d="M50,20 L80,25 L80,85 L50,80 Z" fill="none" stroke="#ff6b6b" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M50,20 L20,25 L20,85 L50,80 Z" fill="none" stroke="#ff6b6b" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M50,20 L50,80" fill="none" stroke="#ff6b6b" stroke-width="4" stroke-linecap="round"/>
-                    <path class="book-page pulsing" d="M55,30 L75,33 M55,40 L75,43 M55,50 L75,53 M55,60 L75,63 M55,70 L75,73" style="animation-delay: 0s;"/>
-                    <path class="book-page pulsing" d="M45,30 L25,33 M45,40 L25,43 M45,50 L25,53 M45,60 L25,63 M45,70 L25,73" style="animation-delay: 0.5s;"/>
-                </svg>
+                <img id="study-animation" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZkM250czk3NmticnZ1NnlvOWVmNWRzZHZkNmNlZCZlcD12MV9pbnRlcm5hbF9naWZzX2dpZl9pZCZjdD1n/6FzxI1lcqlPPUgRyf/giphy.gif" alt="Animación de estudio Lofi">
 
-                <div id="zen-hint">Haz clic en el centro para pausar y salir</div>
-            </div>
+                </div>
             
             <div class="controls hide-in-zen">
                 <button class="btn-work" onclick="forceStartWork()">Iniciar Enfoque</button>
@@ -420,7 +384,6 @@
         function startTimer() {
             if (timerId !== null) return; 
             
-            // AHORA el Modo Zen se activa sin importar si es estudio o descanso
             document.body.classList.add('zen-mode');
 
             timerId = setInterval(() => {
@@ -445,7 +408,6 @@
             updateVisualizationState(); 
         }
 
-        // NUEVAS FUNCIONES PARA LOS BOTONES
         function forceStartWork() {
             setWork();
             startTimer();
