@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro de Estudio</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1e1e2f;
+            color: #ffffff;
+        }
+        .container {
+            background-color: #2a2a40;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        #timer {
+            font-size: 80px;
+            font-weight: bold;
+            margin: 20px 0;
+            font-variant-numeric: tabular-nums; /* Evita que los números salten */
+        }
+        .mode-label {
+            font-size: 24px;
+            color: #ff6b6b;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+        button {
+            background-color: #4ecdc4;
+            color: #1a1a2e;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        button:hover {
+            background-color: #45b7af;
+        }
+        .mode-buttons {
+            margin-top: 30px;
+            border-top: 1px solid #4ecdc4;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="mode-label" id="mode">Modo Enfoque</div>
+        <div id="timer">25:00</div>
+        
+        <div>
+            <button onclick="startTimer()">Iniciar</button>
+            <button onclick="pauseTimer()">Pausar</button>
+            <button onclick="resetTimer()">Reiniciar</button>
+        </div>
+
+        <div class="mode-buttons">
+            <button onclick="setMode('work')" style="background-color: #ff6b6b; color: white;">Pomodoro (25m)</button>
+            <button onclick="setMode('break')" style="background-color: #ffe66d; color: #1a1a2e;">Descanso (5m)</button>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 25 * 60; // 25 minutos en segundos
+        let timerId = null;
+        let isWorkMode = true;
+
+        const timerDisplay = document.getElementById('timer');
+        const modeDisplay = document.getElementById('mode');
+
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            // Formatear para que siempre tenga dos dígitos (ej. 09:05)
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if (timerId !== null) return; // Evita múltiples temporizadores a la vez
+            timerId = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    timerId = null;
+                    alert(isWorkMode ? '¡Excelente trabajo! Tiempo de descansar.' : '¡Descanso terminado! A volver al estudio.');
+                    setMode(isWorkMode ? 'break' : 'work');
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerId);
+            timerId = null;
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            timeLeft = isWorkMode ? 25 * 60 : 5 * 60;
+            updateDisplay();
+        }
+
+        function setMode(mode) {
+            pauseTimer();
+            if (mode === 'work') {
+                isWorkMode = true;
+                timeLeft = 25 * 60;
+                modeDisplay.textContent = 'Modo Enfoque';
+                modeDisplay.style.color = '#ff6b6b';
+            } else {
+                isWorkMode = false;
+                timeLeft = 5 * 60;
+                modeDisplay.textContent = 'Descanso';
+                modeDisplay.style.color = '#ffe66d';
+            }
+            updateDisplay();
+        }
+
+        // Mostrar el tiempo inicial al cargar la página
+        updateDisplay();
+    </script>
+</body>
+</html>
