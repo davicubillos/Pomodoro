@@ -204,7 +204,7 @@
 
         /* === ESTILOS PARA LAS ANIMACIONES (GIFS) === */
         .timer-gif {
-            display: none; /* Oculto por defecto */
+            display: none; 
             max-width: 100%; 
             max-height: 350px; 
             border-radius: 12px; 
@@ -214,7 +214,6 @@
 
         /* === ESTADOS DE VISUALIZACIÓN === */
         
-        /* 1. Modo Estudio con Animación */
         body.show-anim-work-mode #timer {
             opacity: 0;
             transform: scale(0.8);
@@ -227,7 +226,6 @@
             transform: scale(1);
         }
 
-        /* 2. Modo Descanso con Animación */
         body.show-anim-break-mode #timer {
             opacity: 0;
             transform: scale(0.8);
@@ -327,9 +325,8 @@
                 
                 <div id="timer">25:00</div>
                 
-                <img id="study-animation" class="timer-gif" src="chill-zen.gif" alt="Lofi Work">
-
-                <img id="break-animation" class="timer-gif" src="spongebob.gif" alt="Break Time">
+                <img id="study-animation" class="timer-gif" src="spongebob.gif" alt="Study Mode">
+                <img id="break-animation" class="timer-gif" src="chill-zen.gif" alt="Break Mode">
 
             </div>
             
@@ -358,12 +355,9 @@
             updateVisualizationState();
         }
 
-        // NUEVA FUNCIÓN DE VISUALIZACIÓN UNIFICADA
         function updateVisualizationState() {
-            // Eliminar todas las clases de animación primero
             document.body.classList.remove('show-anim-work-mode', 'show-anim-break-mode');
 
-            // Solo mostrar animación si la preferencia está activa Y el reloj está corriendo
             if (preferAnimation && timerId !== null) {
                 if (isWorkMode) {
                     document.body.classList.add('show-anim-work-mode');
@@ -415,20 +409,17 @@
                     timerId = null;
                     document.body.classList.remove('zen-mode');
                     
-                    // Al terminar, la vista se resetea al reloj para el cambio automático
                     document.body.classList.remove('show-anim-work-mode', 'show-anim-break-mode'); 
                     
                     if (isWorkMode) {
                         setBreak();
-                        startTimer(); // Autostart descanso
+                        startTimer(); 
                     } else {
-                        // Cuando termina el descanso, te devuelve al modo enfoque pero espera a que tú decidas iniciar
                         setWork();
                     }
                 }
             }, 1000);
 
-            // Ahora que el timerId existe, la animación sí se activará
             updateVisualizationState(); 
         }
 
@@ -444,13 +435,11 @@
 
         function togglePause() {
             if (timerId !== null) {
-                // Pausar
                 clearInterval(timerId);
                 timerId = null;
                 document.body.classList.remove('zen-mode');
-                updateVisualizationState(); // Volver al reloj al pausar
+                updateVisualizationState(); 
             } else if (document.body.classList.contains('zen-mode')) {
-                 // Estaba en zen pero pausado (caso raro), salir del zen
                  document.body.classList.remove('zen-mode');
             }
         }
@@ -465,7 +454,6 @@
             modeDisplay.style.color = 'var(--accent-work)';
             
             document.body.classList.remove('zen-mode');
-            // SE AGREGA LLAMADA PARA ACTUALIZAR VISTA
             updateVisualizationState(); 
             updateDisplay();
         }
@@ -480,7 +468,6 @@
             modeDisplay.style.color = 'var(--accent-break)';
             
             document.body.classList.remove('zen-mode');
-            // SE AGREGA LLAMADA PARA ACTUALIZAR VISTA
             updateVisualizationState(); 
             updateDisplay();
         }
